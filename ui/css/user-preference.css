@@ -1,0 +1,126 @@
+.user-preferences .filter-list {
+  display: flex;
+  margin: 2em;
+}
+.user-preferences .filter {
+  --btn-bg: var(--fg2);
+  --btn-fg: var(--bg);
+  --btn-hov: var(--fg);
+  background-color: var(--btn-bg);
+  color: var(--btn-fg);
+  border-radius: 1em;
+  padding: 0.25em 1em;
+  margin: 0 0.5em;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+.user-preferences .filter.selected,
+.user-preferences .filter:hover {
+  background-color: var(--btn-hov);
+  box-shadow: 0 0 0.5em var(--btn-hov);
+}
+.user-preferences .filter.like {
+  --btn-bg:  #00aa00;
+  --btn-hov: #44ff44;
+  --btn-fg: var(--fg);
+}
+.user-preferences .filter.optional {
+  --btn-bg:  #777777;
+  --btn-hov: #bbbbbb;
+  --btn-fg: var(--fg);
+}
+.user-preferences .filter.dislike {
+  --btn-bg:  #aa0000;
+  --btn-hov: #ff4444;
+  --btn-fg: var(--fg);
+}
+.user-preferences .filter-settings label input {
+  margin-right: 0.6em;
+}
+
+.user-preferences .list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+.user-preferences .game {
+  margin: 0.5em;
+  border: 0.2em solid var(--bg2);
+  position: relative;
+  width: 460px;
+}
+.user-preferences .game .banner {
+  width: 460px;
+  height: 215px;
+}
+.user-preferences .game .title {
+  display: flex;
+  align-items: center;
+  margin: 0.25em;
+  width: 100%;
+}
+.user-preferences .game .title .icon {
+  margin-right: 0.5em;
+}
+.user-preferences .game .title span {
+  font-size: 1.3em;
+  flex-grow: 1;
+  flex-shrink: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.user-preferences .owned {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0.5em;
+}
+.user-preferences .owner {
+  border: 0.2em solid var(--btn-state);
+  --btn-state: transparent;
+}
+.user-preferences .owner.like {
+  --btn-state: #00aa00;
+}
+.user-preferences .owner.dislike {
+  --btn-state: #aa0000;
+}
+.user-preferences .owner.optional {
+  --btn-state: #777777;
+}
+.user-preferences .buttons {
+  display: flex;
+  position: relative;
+}
+.user-preferences .button {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 33%;
+  text-align: center;
+  cursor: pointer;
+  background-color: var(--btn-bg);
+  padding: 0.5em 0;
+}
+.user-preferences .button.selected {
+  background-color: var(--btn-sel);
+}
+.user-preferences .button:hover {
+  background-color: var(--btn-hov);
+  box-shadow: 0 0 1em var(--btn-hov);
+  z-index: 1;
+}
+.user-preferences .button.like {
+  --btn-bg:  #00aa00;
+  --btn-sel: #44ff44;
+  --btn-hov: #aaff00;
+}
+.user-preferences .button.dislike {
+  --btn-bg:  #aa0000;
+  --btn-sel: #ff4444;
+  --btn-hov: #ff4400;
+}
+.user-preferences .button.optional {
+  --btn-bg:  #777777;
+  --btn-sel: #999999;
+  --btn-hov: #bbbbbb;
+}

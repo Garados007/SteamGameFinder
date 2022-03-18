@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Steam Game Finder</title>
+    <!-- <link rel="icon" type="image/svg+xml" href="/content/icon.svg" sizes="any"> -->
+    <script>
+      var mySockets = {};
+      var mySocketsReplay = {};
+  
+      function sendSocketCommand(wat) {
+        // console.log( "ssc: " +  JSON.stringify(wat, null, 4));
+        if (wat.cmd == "connect")
+        {
+          // console.log("connecting!");
+          let socket;
+          try { socket = new WebSocket(wat.address); }
+          catch (e) {
+            console.error("open ws", e);
+            // app.ports.receiveSocketClose.send(
+            //   { name : wat.name
+            //   , code : 0
+            //   , reason : "cannot create socket"
+            //   }
+            // );
+            // return;
+          }
+          socket.onmessage = function (event) {
+            // console.log( "onmessage: " +  JSON.stringify(event.data, null, 4));
+            socket.errorCounter = 0;
+            app.ports.receiveSocketMsg.send(
+              { name : wat.name
+              , msg : "data"
+              , data : event.data
+              }
+            );
+          }
+          socket.onopen = function () {
+            if (mySocketsReplay[wat.name]) {
+              while (mySocketsReplay[wat.name].length > 0) {
+                socket.send(mySocketsReplay[wat.name].pop());
+              }
+            }
+            if (socket.buffer) {
+              for (var i in socket.buffer)
+                socket.send(socket.buffer[i]);
+              delete socket.buffer;
+            }
+          }
+          socket.onclose = function (data) {
+            console.log(`ws closed: ${data.code}, ${data.reason}, counter=${socket.errorCounter||0}`);
+            if (data.code == 1006 && data.reason == "") {
+              if (!socket.errorCounter || socket.errorCounter < 3) {
+                socket.errorCounter = 1 + (socket.errorCounter || 0);
+                return;
+              }
+            }
+            app.ports.receiveSocketClose.send(
+              { name : wat.name
+              , code : data.code
+              , reason : data.reason
+              }
+            );
+            delete mySockets[wat.name];
+          }
+          if (mySockets[wat.name]) {
+            mySockets[wat.name].close();
+          }
+          mySockets[wat.name] = socket;
+        }
+        else if (wat.cmd == "send")
+        {
+          if (mySockets[wat.name] == undefined)
+          {
+            mySocketsReplay[wat.name] = mySocketsReplay[wat.name] || [];
+            mySocketsReplay[wat.name].push(wat.content);
+            return;
+          }
+          // console.log("sending to socket: " + wat.name );
+          const socket = mySockets[wat.name];
+          if (socket.readyState == 1)
+            mySockets[wat.name].send(wat.content);
+          else if (socket.readyState == 0) {
+            socket.buffer = socket.buffer || [];
+            socket.buffer.push(wat.content);
+          }
+        }
+        else if (wat.cmd == "close")
+        {
+          // console.log("closing socket: " + wat.name);
+          if (mySockets[wat.name])
+            mySockets[wat.name].close();
+          delete mySockets[wat.name];
+        }
+      }
+    </script>
+    <script>
+    //   (function () {
+    //     const param = new URLSearchParams(window.location.search);
+    //     if (!param.has("lang")) {
+    //       var lang = navigator.language || navigator.userLanguage;
+    //       lang = /^(\w+)[$\W]/.exec(lang)[1];
+    //       param.set("lang", lang);
+    //       window.location.search = param.toString();
+    //     }
+    //   })();
+    </script>
+    <script>
+      function copyToClipboard(text) {
+        const temp = document.createElement("input");
+        temp.setAttribute("value", text);
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        document.body.removeChild(temp);
+      }
+    </script>
+    <style>
+body {
+  background-color: #333333;
+  color: #ffffff;
+}
+    </style>
+</head>
+<body>
+  <div id="elm">
+  </div>
+  <script src="/index.js"></script>
+  <!-- <script src="/content/js/local-storage.js"></script> -->
+  <script>
+document.body.addEventListener("dragstart", event => {
+  if (event.target && event.target.draggable) {
+    // absurdly, this is needed for Firefox; see https://medium.com/elm-shorts/elm-drag-and-drop-game-630205556d2
+    event.dataTransfer.setData("text/html", "blank");
+  }
+});
+
+document.body.addEventListener("dragover", event => {
+  // this is needed in order to make dragging work
+  return false;
+});
+  </script>
+  <script>
+      var app = Elm.Main.init( { 
+          node: document.getElementById("elm") 
+      });
+      if (document.getElementById("elm"))
+      {
+          document.getElementById("elm").innerText = 'This is a headless program, meaning there is nothing to show here.\\n\\nI started the program anyway though, and you can access it as `app` in the developer console.';
+      }
+      // Add this line!
+      app.ports.sendSocketCommand.subscribe(sendSocketCommand);
+    //   app.ports.sendToClipboard.subscribe(copyToClipboard);
+    //   new ElmLocalStoragePorts().subscribe(app, "settingGetItem", "settingSetItem", "settingClear", "settingListKeys", "settingResponse");
+  </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+body {
+  padding: 0;
+  margin: 0;
+  background-color: #333333;
+  color: #ffffff;
+  font-family: sans-serif;
+}
+:root {
+  --bg:  #333333;
+  --bga: #333333e0;
+  --bg2: #666666;
+  --fg:  #ffffff;
+  --fg2: #aaaaaa;
+}

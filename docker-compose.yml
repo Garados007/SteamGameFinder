@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  play:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: steam-game-finder
+    env_file: .env
+    ports:
+      - 8030:8000
+    restart: unless-stopped
