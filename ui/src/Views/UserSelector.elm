@@ -34,7 +34,6 @@ view data =
                                 [ Html.img
                                     [ HA.src user.avatarFull 
                                     , HA.attribute "referrerpolicy" "no-referrer"
-                                    , HA.attribute "crossorigin" "anonymous"
                                     ] []
                                 , div [ class "name" ]
                                     [ text user.personaName ]
@@ -68,7 +67,6 @@ viewBanner data =
                 [ Html.img
                     [ HA.src user.avatarMedium
                     , HA.attribute "referrerpolicy" "no-referrer"
-                    , HA.attribute "crossorigin" "anonymous"
                     ] []
                 ]
         )
