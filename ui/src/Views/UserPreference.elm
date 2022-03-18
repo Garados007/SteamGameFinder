@@ -311,6 +311,8 @@ viewGames myId data list =
                     [ Html.img
                         [ class "banner"
                         , HA.src game.imgBannerUrl
+                        , HA.attribute "referrerpolicy" "no-referrer"
+                        , HA.attribute "crossorigin" "anonymous"
                         ] []
                     ]
                 , div 
@@ -320,6 +322,8 @@ viewGames myId data list =
                     [ Html.img
                         [ class "icon"
                         , HA.src game.imgIconUrl
+                        , HA.attribute "referrerpolicy" "no-referrer"
+                        , HA.attribute "crossorigin" "anonymous"
                         ] []
                     , Html.span [] [ text game.name ]
                     ]
@@ -346,6 +350,8 @@ viewGames myId data list =
                                         ]
                                         [ Html.img
                                             [ HA.src user.avatar 
+                                            , HA.attribute "referrerpolicy" "no-referrer"
+                                            , HA.attribute "crossorigin" "anonymous"
                                             ] []
                                         ]
                         )

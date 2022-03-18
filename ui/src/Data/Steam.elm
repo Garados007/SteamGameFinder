@@ -79,7 +79,7 @@ toSteamGame : SteamId -> SteamGameTime -> SteamGame
 toSteamGame userid gametime =
     { appid = gametime.appid
     , name = gametime.name
-    , imgIconUrl = "http://media.steampowered.com/steamcommunity/public/images/apps/"
+    , imgIconUrl = "https://media.steampowered.com/steamcommunity/public/images/apps/"
         ++ String.fromInt gametime.appid ++ "/" ++ gametime.imgIconUrlHash ++ ".jpg"
     , imgBannerUrl = "https://cdn.cloudflare.steamstatic.com/steam/apps/"
         ++ String.fromInt gametime.appid ++ "/header.jpg"
