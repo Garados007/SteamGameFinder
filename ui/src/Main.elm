@@ -155,10 +155,10 @@ update msg model =
                                         Url.Http -> "http://"
                                         Url.Https -> "https://"
                                     , model.url.host
-                                    -- , case model.url.port_ of
-                                    --     Just p -> ":" ++ String.fromInt p
-                                    --     Nothing -> ""
-                                    , ":8000"
+                                    , case model.url.port_ of
+                                        Just p -> ":" ++ String.fromInt p
+                                        Nothing -> ""
+                                    -- , ":8000"
                                     ]
                                 )
                                 session.id
