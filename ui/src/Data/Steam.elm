@@ -24,7 +24,7 @@ type alias SteamPlayer =
     , avatar: String
     , avatarMedium: String
     , avatarFull: String
-    , lastLogoff: Posix
+    , lastLogoff: Maybe Posix
     , timeCreated: Posix
     , locCountryCode: Maybe String
     -- there are more, but these will be ignored
@@ -41,7 +41,7 @@ decodeSteamPlayer =
     |> required "avatar" JD.string
     |> required "avatarmedium" JD.string
     |> required "avatarfull" JD.string
-    |> required "lastlogoff" decodeSteamTime
+    |> optional "lastlogoff" (JD.map Just decodeSteamTime) Nothing
     |> required "timecreated" decodeSteamTime
     |> optional "loccountrycode" (JD.map Just JD.string) Nothing
 
