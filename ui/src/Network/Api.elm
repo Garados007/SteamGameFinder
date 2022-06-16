@@ -44,6 +44,15 @@ getSteamGames userid callback =
                         )
                     <| JD.list
                     <| decodeSteamGameTime
+                , JD.map Ok
+                    <| JD.at [ "response" ]
+                    <| JD.andThen
+                        (\list ->
+                            if List.isEmpty list
+                            then JD.succeed Dict.empty
+                            else JD.fail "expect empty list"
+                        )
+                    <| JD.keyValuePairs JD.value
                 ]
         }
 
