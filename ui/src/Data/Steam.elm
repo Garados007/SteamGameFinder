@@ -26,7 +26,7 @@ type alias SteamPlayer =
     , avatarFull: String
     , lastLogoff: Posix
     , timeCreated: Posix
-    , locCountryCode: String
+    , locCountryCode: Maybe String
     -- there are more, but these will be ignored
     }
 
@@ -43,7 +43,7 @@ decodeSteamPlayer =
     |> required "avatarfull" JD.string
     |> required "lastlogoff" decodeSteamTime
     |> required "timecreated" decodeSteamTime
-    |> required "loccountrycode" JD.string
+    |> optional "loccountrycode" (JD.map Just JD.string) Nothing
 
 type alias SteamGameTime =
     { appid: AppId
