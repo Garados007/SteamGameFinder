@@ -55,6 +55,9 @@ view data model =
                 , "garados007"
                 , "https://steamcommunity.com/id/garados007"
                 ]
+            , text
+                <| "All Steam data will be cached for one hour. If you bought new games in the "
+                ++ "meantime, just wait a bit."
             ]
         , div [ class "input" ]
             [ case Dict.get model.name data.invalidUser of
@@ -71,6 +74,22 @@ view data model =
                 , Html.button [ HE.onClick Add ] [ text "Add" ]
                 ]
             ]
+        , div [ class "hint" ]
+            [ text
+                <| "If you are having trouble fetching or viewing a teammate's games, try setting "
+                ++ "your game list to public in your Steam settings. More Information can be found "
+                ++ "at the "
+            , Html.a
+                [ HA.href "https://help.steampowered.com/en/faqs/view/588C-C67D-0251-C276"
+                , HA.target "_blank"
+                ]
+                [ text "Steam Support" ]
+            , text " page."
+            ]
+        , div [ class "hint" ]
+            [ text
+                <| "Steam profiles with a large library may take a while to load and make the page "
+                ++ "unresponsive. Please wait a moment in such cases."
             ]
         ]
 

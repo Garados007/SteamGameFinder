@@ -29,3 +29,10 @@
 .user-input .input-box button {
   padding: 0 1em;
 }
+.user-input .hint {
+  margin: 2em 1em;
+  font-size: 0.8em;
+}
+.user-input .hint a {
+  color: #7a7afa;
+}
