@@ -47,9 +47,14 @@ view data model =
         [ Html.h2 [ class "title", HA.id "user-input", HA.name "user-input" ]
             [ text "Add new user" ]
         , div [ class "description" ]
-            [ text "Insert the SteamID from the user. This is something like: "
-            , Html.em []
-                [ text "76561197972495328" ]
+            [ text "Insert the SteamID or VanityURL from the user. This can be something like: "
+            , Html.ul []
+                <| List.map (Html.li [] << List.singleton << Html.em [] << List.singleton << text)
+                [ "76561197972495328"
+                , "https://steamcommunity.com/profiles/76561197972495328"
+                , "garados007"
+                , "https://steamcommunity.com/id/garados007"
+                ]
             ]
         , div [ class "input" ]
             [ case Dict.get model.name data.invalidUser of
@@ -69,6 +74,8 @@ fixId : String -> String
 fixId original =
     if String.startsWith "https://steamcommunity.com/profiles/" original
     then String.dropLeft (String.length "https://steamcommunity.com/profiles/") original
+    else if String.startsWith "https://steamcommunity.com/id/" original
+    then String.dropLeft (String.length "https://steamcommunity.com/id/") original
     else original
 
 update : Msg -> Data -> Model -> (Model, Cmd Msg, List Event)

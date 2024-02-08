@@ -24,19 +24,57 @@ public class WebServices : Service
         return m;
     }
 
+    private async Task<string?> ResolveCustomId(string id)
+    {
+        id = Uri.EscapeDataString(id)!;
+        Serilog.Log.Debug("Look for vanity url: {url}", id);
+        if (!Directory.Exists("cache/custom-id"))
+            Directory.CreateDirectory("cache/custom-id");
+        var cachePath = Path.Combine("cache/custom-id", id + ".json");
+        if (File.Exists(cachePath) && File.GetLastAccessTimeUtc(cachePath).AddHours(1) > DateTime.UtcNow)
+        {
+            return await File.ReadAllTextAsync(cachePath);
+        }
+
+        using var client = new HttpClient();
+        using var stream = await client.GetStreamAsync(
+            "http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/" +
+            "?key=" + Program.ApiKey +
+            "&vanityurl=" + id
+        ).ConfigureAwait(false);
+        var doc = await JsonDocument.ParseAsync(stream);
+        if (!doc.RootElement.TryGetProperty("response", out var response) ||
+            !response.TryGetProperty("success", out var success) ||
+            !success.TryGetInt32(out var successValue) ||
+            successValue != 1 ||
+            !response.TryGetProperty("steamid", out var steamid))
+            return null;
+        var steamIdValue = steamid.GetString();
+        if (steamIdValue is null)
+            return null;
+
+        await File.WriteAllTextAsync(cachePath, steamIdValue);
+        return steamIdValue;
+    }
+
     [Path("/api/played-games/{steamid}")]
     [return: Mime(MimeType.ApplicationJson)]
     public async Task<Stream> GetPlayedGames([Var] string steamid)
     {
         if (!steamIdRegex.IsMatch(steamid))
-            return Error("invalid id");
-        
+        {
+            var id = await ResolveCustomId(steamid);
+            if (id is null || !steamIdRegex.IsMatch(id))
+                return Error("invalid id");
+            else steamid = id;
+        }
+
         if (!Directory.Exists("cache/played-games"))
             Directory.CreateDirectory("cache/played-games");
         var cachePath = Path.Combine("cache/played-games", steamid + ".json");
         if (File.Exists(cachePath) && File.GetLastWriteTimeUtc(cachePath).AddHours(1) > DateTime.UtcNow)
             return new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-        
+
         using var client = new HttpClient();
         var stream = await client.GetStreamAsync(
             "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/" +
@@ -59,14 +97,19 @@ public class WebServices : Service
     public async Task<Stream> GetUser([Var] string steamid)
     {
         if (!steamIdRegex.IsMatch(steamid))
-            return Error("invalid id");
-        
+        {
+            var id = await ResolveCustomId(steamid);
+            if (id is null || !steamIdRegex.IsMatch(id))
+                return Error("invalid id");
+            else steamid = id;
+        }
+
         if (!Directory.Exists("cache/user"))
             Directory.CreateDirectory("cache/user");
         var cachePath = Path.Combine("cache/user", steamid + ".json");
         if (File.Exists(cachePath) && File.GetLastWriteTimeUtc(cachePath).AddHours(6) > DateTime.UtcNow)
             return new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-        
+
         using var client = new HttpClient();
         var stream = await client.GetStreamAsync(
             "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/" +
@@ -79,7 +122,7 @@ public class WebServices : Service
 
         cache.SetLength(cache.Position);
         cache.Position = 0;
-        return cache; 
+        return cache;
     }
 
     [Path("/api/new")]
