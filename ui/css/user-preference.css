@@ -20,19 +20,22 @@
   box-shadow: 0 0 0.5em var(--btn-hov);
 }
 .user-preferences .filter.like,
-.user-preferences .list.pref-like {
+.user-preferences .list.pref-like,
+.user-preferences .game .counter .like {
   --btn-bg:  #00aa00;
   --btn-hov: #44ff44;
   --btn-fg: var(--fg);
 }
 .user-preferences .filter.optional,
-.user-preferences .list.pref-optional {
+.user-preferences .list.pref-optional,
+.user-preferences .game .counter .optional {
   --btn-bg:  #777777;
   --btn-hov: #bbbbbb;
   --btn-fg: var(--fg);
 }
 .user-preferences .filter.dislike,
-.user-preferences .list.pref-dislike {
+.user-preferences .list.pref-dislike,
+.user-preferences .game .counter .dislike {
   --btn-bg:  #aa0000;
   --btn-hov: #ff4444;
   --btn-fg: var(--fg);
@@ -48,6 +51,9 @@
   background-color: var(--btn-bg);
   padding: 1em;
 }
+.user-preferences .list:empty {
+  display: none;
+}
 .user-preferences .game {
   margin: 0.5em;
   border: 0.2em solid var(--bg2);
@@ -58,6 +64,29 @@
 .user-preferences .game .banner {
   width: 460px;
   height: 215px;
+  position: relative;
+}
+.user-preferences .game .counter {
+  position: absolute;
+  top: 0.5em;
+  left: 0.5em;
+  display: flex;
+  transition: opacity 0.5s;
+}
+.user-preferences .game:hover .counter {
+  opacity: 0.25;
+}
+.user-preferences .game .counter > div  {
+  background-color: var(--btn-bg);
+  color: var(--fg);
+  padding: 0.1em 0.5em;
+  font-size: 0.9em;
+}
+.user-preferences .game .counter > div:first-child {
+  border-radius: 1em 0 0 1em;
+}
+.user-preferences .game .counter > div:last-child {
+  border-radius: 0 1em 1em 0;
 }
 .user-preferences .game .title {
   display: flex;

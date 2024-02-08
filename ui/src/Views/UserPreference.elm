@@ -295,6 +295,18 @@ getUserPreference user game data =
     |> Maybe.andThen (Dict.get game)
     |> Maybe.withDefault Data.Session.Undefined
 
+getPreferenceCount : AppId -> Data -> Preference -> Int
+getPreferenceCount game data pref =
+    data.session
+    |> Maybe.map
+        (.preferences
+            >> Dict.values
+            >> List.filterMap (Dict.get game)
+            >> List.filter ((==) pref)
+            >> List.length
+        )
+    |> Maybe.withDefault 0
+
 viewGames : SteamId -> Data -> Data.Session.Preference -> List (Preference, SteamGame) -> Html Msg
 viewGames myId data pref list =
     HK.node "div"
@@ -320,6 +332,23 @@ viewGames myId data pref list =
                         , HA.src game.imgBannerUrl
                         , HA.attribute "referrerpolicy" "no-referrer"
                         ] []
+                    , div [ class "counter" ]
+                        [ div [ class "like" ]
+                            [ text
+                                <| String.fromInt
+                                <| getPreferenceCount game.appid data Data.Session.Like
+                            ]
+                        , div [ class "optional" ]
+                            [ text
+                                <| String.fromInt
+                                <| getPreferenceCount game.appid data Data.Session.Optional
+                            ]
+                        , div [ class "dislike" ]
+                            [ text
+                                <| String.fromInt
+                                <| getPreferenceCount game.appid data Data.Session.Dislike
+                            ]
+                        ]
                     ]
                 , div
                     [ class "title"
