@@ -17,9 +17,15 @@
   margin: 0 0 2em;
   font-size: 0.9em;
 }
-.user-input .input input {
+.user-input .input-box {
+  display: flex;
+}
+.user-input .input-box input {
   width: 100%;
   box-sizing: border-box;
   font-size: 1.5em;
   font-family: monospace;
+}
+.user-input .input-box button {
+  padding: 0 1em;
 }

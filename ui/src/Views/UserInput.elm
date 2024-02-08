@@ -62,11 +62,15 @@ view data model =
                 Just error ->
                     div [ class "error" ]
                         [ text error ]
-            , Html.input
-                [ HA.value model.name
-                , HE.onInput SetInput
-                , onNotShiftEnter Add
-                ] []
+            , div [ class "input-box" ]
+                [ Html.input
+                    [ HA.value model.name
+                    , HE.onInput SetInput
+                    , onNotShiftEnter Add
+                    ] []
+                , Html.button [ HE.onClick Add ] [ text "Add" ]
+                ]
+            ]
             ]
         ]
 
