@@ -65,6 +65,12 @@ view data model =
             ]
         ]
 
+fixId : String -> String
+fixId original =
+    if String.startsWith "https://steamcommunity.com/profiles/" original
+    then String.dropLeft (String.length "https://steamcommunity.com/profiles/") original
+    else original
+
 update : Msg -> Data -> Model -> (Model, Cmd Msg, List Event)
 update msg data model =
     case msg of
@@ -74,10 +80,14 @@ update msg data model =
                 Cmd.none
                 []
         Add ->
-            if Dict.member model.name data.invalidUser
-            then Triple.triple model Cmd.none []
-            else Triple.triple
-                model
-                Cmd.none
-                [ Event.AddUser model.name ]
+            let
+                id : String
+                id = fixId model.name
+            in
+                if Dict.member id data.invalidUser
+                then Triple.triple model Cmd.none []
+                else Triple.triple
+                    model
+                    Cmd.none
+                    [ Event.AddUser id ]
 
