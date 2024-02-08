@@ -19,17 +19,20 @@
   background-color: var(--btn-hov);
   box-shadow: 0 0 0.5em var(--btn-hov);
 }
-.user-preferences .filter.like {
+.user-preferences .filter.like,
+.user-preferences .list.pref-like {
   --btn-bg:  #00aa00;
   --btn-hov: #44ff44;
   --btn-fg: var(--fg);
 }
-.user-preferences .filter.optional {
+.user-preferences .filter.optional,
+.user-preferences .list.pref-optional {
   --btn-bg:  #777777;
   --btn-hov: #bbbbbb;
   --btn-fg: var(--fg);
 }
-.user-preferences .filter.dislike {
+.user-preferences .filter.dislike,
+.user-preferences .list.pref-dislike {
   --btn-bg:  #aa0000;
   --btn-hov: #ff4444;
   --btn-fg: var(--fg);
@@ -42,12 +45,15 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-evenly;
+  background-color: var(--btn-bg);
+  padding: 1em;
 }
 .user-preferences .game {
   margin: 0.5em;
   border: 0.2em solid var(--bg2);
   position: relative;
   width: 460px;
+  background-color: var(--bg);
 }
 .user-preferences .game .banner {
   width: 460px;

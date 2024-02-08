@@ -40,7 +40,7 @@ getPreferenceInfo myId data =
 
         getPref : AppId -> Preference
         getPref id = Dict.get id prefs |> Maybe.withDefault Data.Session.Undefined
-        
+
         insert : Preference -> SteamGame -> PreferenceInfo -> PreferenceInfo
         insert pref game info =
             case pref of
@@ -82,7 +82,7 @@ getPreference myId pref data =
 
         getPref : AppId -> Preference
         getPref id = Dict.get id prefs |> Maybe.withDefault Data.Session.Undefined
-        
+
 
     in Dict.foldl
         (\id game ->
@@ -115,7 +115,7 @@ getResultList myId data =
 
         getPref : AppId -> Preference
         getPref id = Dict.get id prefs |> Maybe.withDefault Data.Session.Undefined
-        
+
 
         prefToScore : Preference -> Maybe Int
         prefToScore pref =
@@ -203,27 +203,27 @@ view data model =
                         info = getPreferenceInfo user data
 
                     in
-                        [ viewGames user data 
+                        [ viewGames user data Data.Session.Undefined
                             <| List.map (Tuple.pair Data.Session.Undefined)
                             <| List.sortWith compareGame info.undefined
-                        , viewGames user data
+                        , viewGames user data Data.Session.Like
                             <| List.map (Tuple.pair Data.Session.Like)
                             <| List.sortWith compareGame info.like
-                        , viewGames user data
+                        , viewGames user data Data.Session.Optional
                             <| List.map (Tuple.pair Data.Session.Optional)
                             <| List.sortWith compareGame info.optional
-                        , viewGames user data
+                        , viewGames user data Data.Session.Dislike
                             <| List.map (Tuple.pair Data.Session.Dislike)
                             <| List.sortWith compareGame info.dislike
                         ]
                 FilterPref pref ->
-                    [ viewGames user data
+                    [ viewGames user data Data.Session.Undefined
                         <| List.map (Tuple.pair pref)
                         <| List.sortWith compareGame
-                        <| getPreference user pref data 
+                        <| getPreference user pref data
                     ]
                 FilterResult ->
-                    [ viewGames user data
+                    [ viewGames user data Data.Session.Undefined
                         <| getResultList user data
                     ]
 
@@ -232,7 +232,7 @@ viewFilter myId data model =
     div [ class "filter-settings" ]
         [ div [ class "filter-list" ]
         <| (\list ->
-                list ++ 
+                list ++
                 [  Html.label
                     [ HA.title "This will hide games that you don't own." ]
                     [ Html.input
@@ -295,10 +295,17 @@ getUserPreference user game data =
     |> Maybe.andThen (Dict.get game)
     |> Maybe.withDefault Data.Session.Undefined
 
-viewGames : SteamId -> Data -> List (Preference, SteamGame) -> Html Msg
-viewGames myId data list =
+viewGames : SteamId -> Data -> Data.Session.Preference -> List (Preference, SteamGame) -> Html Msg
+viewGames myId data pref list =
     HK.node "div"
-        [ class "list" ]
+        [ class "list"
+        , class <|
+            case pref of
+                Data.Session.Undefined -> "pref-undefined"
+                Data.Session.Dislike -> "pref-dislike"
+                Data.Session.Optional -> "pref-optional"
+                Data.Session.Like -> "pref-like"
+        ]
     <| List.map
         (\(preference, game) -> Tuple.pair (String.fromInt game.appid)
             <| div
@@ -314,8 +321,8 @@ viewGames myId data list =
                         , HA.attribute "referrerpolicy" "no-referrer"
                         ] []
                     ]
-                , div 
-                    [ class "title" 
+                , div
+                    [ class "title"
                     , HA.title game.name
                     ]
                     [ Html.img
@@ -347,7 +354,7 @@ viewGames myId data list =
                                             ]
                                         ]
                                         [ Html.img
-                                            [ HA.src user.avatar 
+                                            [ HA.src user.avatar
                                             , HA.attribute "referrerpolicy" "no-referrer"
                                             ] []
                                         ]
