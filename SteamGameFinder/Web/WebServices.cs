@@ -92,6 +92,49 @@ public class WebServices : Service
         return cache;
     }
 
+    [Path("/api/achievements/{steamid}/{appid}")]
+    [return: Mime(MimeType.ApplicationJson)]
+    public async Task<Stream> GetAchievements([Var] string steamid, [Var] string appid)
+    {
+        if (!steamIdRegex.IsMatch(steamid))
+        {
+            var id = await ResolveCustomId(steamid);
+            if (id is null || !steamIdRegex.IsMatch(id))
+                return Error("invalid id");
+            else steamid = id;
+        }
+        if (!steamIdRegex.IsMatch(appid))
+        {
+            return Error("invalid app id");
+        }
+
+        if (!Directory.Exists("cache/achievements"))
+            Directory.CreateDirectory("cache/achievements");
+
+        var playerCacheDir = Path.Combine("cache/achievements", steamid);
+        if (!Directory.Exists(playerCacheDir))
+            Directory.CreateDirectory(playerCacheDir);
+
+        var cachePath = Path.Combine(playerCacheDir, appid + ".json");
+        if (File.Exists(cachePath) && File.GetLastWriteTimeUtc(cachePath).AddHours(24) > DateTime.UtcNow)
+            return new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+        using var client = new HttpClient();
+        var stream = await client.GetStreamAsync(
+            "https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/" +
+            "?key=" + Program.ApiKey +
+            "&appid=" + appid +
+            "&steamid=" + steamid +
+            "&format=json"
+        ).ConfigureAwait(false);
+        var cache = new FileStream(cachePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+        await stream.CopyToAsync(cache).ConfigureAwait(false);
+
+        cache.SetLength(cache.Position);
+        cache.Position = 0;
+        return cache;
+    }
+
     [Path("/api/user/{steamid}")]
     [return: Mime(MimeType.ApplicationJson)]
     public async Task<Stream> GetUser([Var] string steamid)
