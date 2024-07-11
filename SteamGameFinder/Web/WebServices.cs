@@ -139,7 +139,12 @@ public class WebServices : Service
         catch(System.Net.Http.HttpRequestException e)
         {
             response.StatusCode = HttpStateCode.InternalServerError; // TODO: fetch correct response and status code and return it
-            return false;
+            return new MemoryStream();
+        }
+        catch(System.Exception e)
+        {
+            response.StatusCode = HttpStateCode.InternalServerError; // TODO: fetch correct response and status code and return it
+            return new MemoryStream();
         }
     }
 
