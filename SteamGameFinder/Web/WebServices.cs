@@ -94,7 +94,7 @@ public class WebServices : Service
 
     [Path("/api/achievements/{steamid}/{appid}")]
     [return: Mime(MimeType.ApplicationJson)]
-    public async Task<Stream> GetAchievements([Var] string steamid, [Var] string appid)
+    public async Task<Stream?> GetAchievements([Var] string steamid, [Var] string appid, HttpResponseHeader response)
     {
         if (!steamIdRegex.IsMatch(steamid))
         {
@@ -119,20 +119,28 @@ public class WebServices : Service
         if (File.Exists(cachePath) && File.GetLastWriteTimeUtc(cachePath).AddHours(24) > DateTime.UtcNow)
             return new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 
-        using var client = new HttpClient();
-        var stream = await client.GetStreamAsync(
-            "https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/" +
-            "?key=" + Program.ApiKey +
-            "&appid=" + appid +
-            "&steamid=" + steamid +
-            "&format=json"
-        ).ConfigureAwait(false);
-        var cache = new FileStream(cachePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-        await stream.CopyToAsync(cache).ConfigureAwait(false);
+        try
+        {
+            using var client = new HttpClient();
+            var stream = await client.GetStreamAsync(
+                "https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/" +
+                "?key=" + Program.ApiKey +
+                "&appid=" + appid +
+                "&steamid=" + steamid +
+                "&format=json"
+            ).ConfigureAwait(false);
+            var cache = new FileStream(cachePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+            await stream.CopyToAsync(cache).ConfigureAwait(false);
 
-        cache.SetLength(cache.Position);
-        cache.Position = 0;
-        return cache;
+            cache.SetLength(cache.Position);
+            cache.Position = 0;
+            return cache;
+        }
+        catch(System.Net.Http.HttpRequestException e)
+        {
+            response.StatusCode = HttpStateCode.InternalServerError; // TODO: fetch correct response and status code and return it
+            return false;
+        }
     }
 
     [Path("/api/user/{steamid}")]
