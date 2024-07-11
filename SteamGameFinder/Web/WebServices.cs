@@ -150,6 +150,40 @@ public class WebServices : Service
         }
     }
 
+    [Path("/api/friends/{steamid}")]
+    [return: Mime(MimeType.ApplicationJson)]
+    public async Task<Stream> GetFriends([Var] string steamid)
+    {
+        if (!steamIdRegex.IsMatch(steamid))
+        {
+            var id = await ResolveCustomId(steamid);
+            if (id is null || !steamIdRegex.IsMatch(id))
+                return Error("invalid id");
+            else steamid = id;
+        }
+
+        if (!Directory.Exists("cache/user"))
+            Directory.CreateDirectory("cache/friends");
+        var cachePath = Path.Combine("cache/friends", steamid + ".json");
+        if (File.Exists(cachePath) && File.GetLastWriteTimeUtc(cachePath).AddHours(6) > DateTime.UtcNow)
+            return new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+        using var client = new HttpClient();
+        var stream = await client.GetStreamAsync(
+            "https://api.steampowered.com/ISteamUser/GetFriendList/v0001/" +
+            "?key=" + Program.ApiKey +
+            "&steamid=" + steamid +
+            "&relationship=friend" +
+            "&format=json"
+        ).ConfigureAwait(false);
+        var cache = new FileStream(cachePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+        await stream.CopyToAsync(cache).ConfigureAwait(false);
+
+        cache.SetLength(cache.Position);
+        cache.Position = 0;
+        return cache;
+    }
+
     [Path("/api/user/{steamid}")]
     [return: Mime(MimeType.ApplicationJson)]
     public async Task<Stream> GetUser([Var] string steamid)
