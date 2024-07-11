@@ -139,12 +139,14 @@ public class WebServices : Service
         catch(System.Net.Http.HttpRequestException e)
         {
             response.StatusCode = HttpStateCode.InternalServerError; // TODO: fetch correct response and status code and return it
-            return new MemoryStream();
+            var cache = new FileStream(cachePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+            return cache;
         }
         catch(System.Exception e)
         {
             response.StatusCode = HttpStateCode.InternalServerError; // TODO: fetch correct response and status code and return it
-            return new MemoryStream();
+            var cache = new FileStream(cachePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+            return cache;
         }
     }
 
