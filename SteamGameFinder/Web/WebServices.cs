@@ -162,7 +162,7 @@ public class WebServices : Service
             else steamid = id;
         }
 
-        if (!Directory.Exists("cache/user"))
+        if (!Directory.Exists("cache/friends"))
             Directory.CreateDirectory("cache/friends");
         var cachePath = Path.Combine("cache/friends", steamid + ".json");
         if (File.Exists(cachePath) && File.GetLastWriteTimeUtc(cachePath).AddHours(6) > DateTime.UtcNow)
