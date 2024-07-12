@@ -31,7 +31,7 @@ public class WebServices : Service
         if (!Directory.Exists("cache/custom-id"))
             Directory.CreateDirectory("cache/custom-id");
         var cachePath = Path.Combine("cache/custom-id", id + ".json");
-        if (File.Exists(cachePath) && File.GetLastAccessTimeUtc(cachePath).AddHours(1) > DateTime.UtcNow)
+        if (File.Exists(cachePath) && File.GetLastAccessTimeUtc(cachePath).AddHours(24) > DateTime.UtcNow)
         {
             return await File.ReadAllTextAsync(cachePath);
         }
@@ -199,7 +199,7 @@ public class WebServices : Service
         if (!Directory.Exists("cache/user"))
             Directory.CreateDirectory("cache/user");
         var cachePath = Path.Combine("cache/user", steamid + ".json");
-        if (File.Exists(cachePath) && File.GetLastWriteTimeUtc(cachePath).AddHours(6) > DateTime.UtcNow)
+        if (File.Exists(cachePath) && File.GetLastWriteTimeUtc(cachePath).AddMinutes(10) > DateTime.UtcNow)
             return new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 
         using var client = new HttpClient();
