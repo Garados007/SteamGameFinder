@@ -92,97 +92,97 @@ public class WebServices : Service
         return cache;
     }
 
-    [Path("/api/achievements/{steamid}/{appid}")]
-    [return: Mime(MimeType.ApplicationJson)]
-    public async Task<Stream?> GetAchievements([Var] string steamid, [Var] string appid, HttpResponseHeader response)
-    {
-        if (!steamIdRegex.IsMatch(steamid))
-        {
-            var id = await ResolveCustomId(steamid);
-            if (id is null || !steamIdRegex.IsMatch(id))
-                return Error("invalid id");
-            else steamid = id;
-        }
-        if (!steamIdRegex.IsMatch(appid))
-        {
-            return Error("invalid app id");
-        }
+    // [Path("/api/achievements/{steamid}/{appid}")]
+    // [return: Mime(MimeType.ApplicationJson)]
+    // public async Task<Stream?> GetAchievements([Var] string steamid, [Var] string appid, HttpResponseHeader response)
+    // {
+    //     if (!steamIdRegex.IsMatch(steamid))
+    //     {
+    //         var id = await ResolveCustomId(steamid);
+    //         if (id is null || !steamIdRegex.IsMatch(id))
+    //             return Error("invalid id");
+    //         else steamid = id;
+    //     }
+    //     if (!steamIdRegex.IsMatch(appid))
+    //     {
+    //         return Error("invalid app id");
+    //     }
 
-        if (!Directory.Exists("cache/achievements"))
-            Directory.CreateDirectory("cache/achievements");
+    //     if (!Directory.Exists("cache/achievements"))
+    //         Directory.CreateDirectory("cache/achievements");
 
-        var playerCacheDir = Path.Combine("cache/achievements", steamid);
-        if (!Directory.Exists(playerCacheDir))
-            Directory.CreateDirectory(playerCacheDir);
+    //     var playerCacheDir = Path.Combine("cache/achievements", steamid);
+    //     if (!Directory.Exists(playerCacheDir))
+    //         Directory.CreateDirectory(playerCacheDir);
 
-        var cachePath = Path.Combine(playerCacheDir, appid + ".json");
-        if (File.Exists(cachePath) && File.GetLastWriteTimeUtc(cachePath).AddHours(24) > DateTime.UtcNow)
-            return new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+    //     var cachePath = Path.Combine(playerCacheDir, appid + ".json");
+    //     if (File.Exists(cachePath) && File.GetLastWriteTimeUtc(cachePath).AddHours(24) > DateTime.UtcNow)
+    //         return new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 
-        try
-        {
-            using var client = new HttpClient();
-            var stream = await client.GetStreamAsync(
-                "https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/" +
-                "?key=" + Program.ApiKey +
-                "&appid=" + appid +
-                "&steamid=" + steamid +
-                "&format=json"
-            ).ConfigureAwait(false);
-            var cache = new FileStream(cachePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-            await stream.CopyToAsync(cache).ConfigureAwait(false);
+    //     try
+    //     {
+    //         using var client = new HttpClient();
+    //         var stream = await client.GetStreamAsync(
+    //             "https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/" +
+    //             "?key=" + Program.ApiKey +
+    //             "&appid=" + appid +
+    //             "&steamid=" + steamid +
+    //             "&format=json"
+    //         ).ConfigureAwait(false);
+    //         var cache = new FileStream(cachePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+    //         await stream.CopyToAsync(cache).ConfigureAwait(false);
 
-            cache.SetLength(cache.Position);
-            cache.Position = 0;
-            return cache;
-        }
-        catch(System.Net.Http.HttpRequestException e)
-        {
-            response.StatusCode = HttpStateCode.InternalServerError; // TODO: fetch correct response and status code and return it
-            var cache = new FileStream(cachePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-            return cache;
-        }
-        catch(System.Exception e)
-        {
-            response.StatusCode = HttpStateCode.InternalServerError; // TODO: fetch correct response and status code and return it
-            var cache = new FileStream(cachePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-            return cache;
-        }
-    }
+    //         cache.SetLength(cache.Position);
+    //         cache.Position = 0;
+    //         return cache;
+    //     }
+    //     catch(System.Net.Http.HttpRequestException e)
+    //     {
+    //         response.StatusCode = HttpStateCode.InternalServerError; // TODO: fetch correct response and status code and return it
+    //         var cache = new FileStream(cachePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+    //         return cache;
+    //     }
+    //     catch(System.Exception e)
+    //     {
+    //         response.StatusCode = HttpStateCode.InternalServerError; // TODO: fetch correct response and status code and return it
+    //         var cache = new FileStream(cachePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+    //         return cache;
+    //     }
+    // }
 
-    [Path("/api/friends/{steamid}")]
-    [return: Mime(MimeType.ApplicationJson)]
-    public async Task<Stream> GetFriends([Var] string steamid)
-    {
-        if (!steamIdRegex.IsMatch(steamid))
-        {
-            var id = await ResolveCustomId(steamid);
-            if (id is null || !steamIdRegex.IsMatch(id))
-                return Error("invalid id");
-            else steamid = id;
-        }
+    // [Path("/api/friends/{steamid}")]
+    // [return: Mime(MimeType.ApplicationJson)]
+    // public async Task<Stream> GetFriends([Var] string steamid)
+    // {
+    //     if (!steamIdRegex.IsMatch(steamid))
+    //     {
+    //         var id = await ResolveCustomId(steamid);
+    //         if (id is null || !steamIdRegex.IsMatch(id))
+    //             return Error("invalid id");
+    //         else steamid = id;
+    //     }
 
-        if (!Directory.Exists("cache/friends"))
-            Directory.CreateDirectory("cache/friends");
-        var cachePath = Path.Combine("cache/friends", steamid + ".json");
-        if (File.Exists(cachePath) && File.GetLastWriteTimeUtc(cachePath).AddHours(6) > DateTime.UtcNow)
-            return new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+    //     if (!Directory.Exists("cache/friends"))
+    //         Directory.CreateDirectory("cache/friends");
+    //     var cachePath = Path.Combine("cache/friends", steamid + ".json");
+    //     if (File.Exists(cachePath) && File.GetLastWriteTimeUtc(cachePath).AddHours(6) > DateTime.UtcNow)
+    //         return new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 
-        using var client = new HttpClient();
-        var stream = await client.GetStreamAsync(
-            "https://api.steampowered.com/ISteamUser/GetFriendList/v0001/" +
-            "?key=" + Program.ApiKey +
-            "&steamid=" + steamid +
-            "&relationship=friend" +
-            "&format=json"
-        ).ConfigureAwait(false);
-        var cache = new FileStream(cachePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-        await stream.CopyToAsync(cache).ConfigureAwait(false);
+    //     using var client = new HttpClient();
+    //     var stream = await client.GetStreamAsync(
+    //         "https://api.steampowered.com/ISteamUser/GetFriendList/v0001/" +
+    //         "?key=" + Program.ApiKey +
+    //         "&steamid=" + steamid +
+    //         "&relationship=friend" +
+    //         "&format=json"
+    //     ).ConfigureAwait(false);
+    //     var cache = new FileStream(cachePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+    //     await stream.CopyToAsync(cache).ConfigureAwait(false);
 
-        cache.SetLength(cache.Position);
-        cache.Position = 0;
-        return cache;
-    }
+    //     cache.SetLength(cache.Position);
+    //     cache.Position = 0;
+    //     return cache;
+    // }
 
     [Path("/api/user/{steamid}")]
     [return: Mime(MimeType.ApplicationJson)]
