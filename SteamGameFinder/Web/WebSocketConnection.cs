@@ -23,6 +23,7 @@ public class WebSocketConnection : EventConnection
         Session = session;
         Session.Add(this);
         Host = host;
+        MaxMessageSize = 64 * 1024;
         Closed += (_, _) =>
         {
             Session.Remove(this);

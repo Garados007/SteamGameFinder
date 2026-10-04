@@ -33,6 +33,7 @@ namespace SteamGameFinder
 
             using var server = new Server(new WebServerSettings(8000, 5000));
             server.InitialDefault();
+            server.GetWebService<HttpRequestParser>()!.MaxContentLength = 64 * 1024;
             // server.AddWebService(new CorsService());
 
             var ws = new MaxLib.WebServer.WebSocket.WebSocketService();
