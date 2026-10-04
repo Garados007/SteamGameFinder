@@ -1,14 +1,20 @@
-using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SteamGameFinder.Web.Events.Receive;
 
 public class SetPreference : ReceiveBase
 {
-    public string User { get; private set; } = "";
+    [JsonPropertyName("user")]
+    [JsonRequired]
+    public string User { get; set; } = "";
 
-    public ulong Game { get; private set; }
+    [JsonPropertyName("game")]
+    [JsonRequired]
+    public ulong Game { get; set; }
 
-    public Sessions.Preference Preference { get; private set; }
+    [JsonPropertyName("preference")]
+    [JsonRequired]
+    public Sessions.Preference Preference { get; set; }
 
     public override async Task Execute(ExecuteArgs args)
     {
@@ -18,15 +24,7 @@ public class SetPreference : ReceiveBase
                 args.Session.Preferences.Add(User, v = new Dictionary<ulong, Sessions.Preference>());
             v[Game] = Preference;
         }
-        await args.Session.ForeachAsync(x => x.Send(new Send.UpdatePreference(this)));
-    }
-
-    public override void ReadJsonContent(JsonElement json)
-    {
-        User = json.GetProperty("user").GetString() ?? "";
-        Game = json.GetProperty("game").GetUInt64();
-        Preference = Enum.Parse<Sessions.Preference>(
-            json.GetProperty("preference").GetString() ?? ""
-        );
+        var update = Send.UpdatePreference.From(this);
+        await args.Session.ForeachAsync(x => x.Send(update));
     }
 }

@@ -1,7 +1,8 @@
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using MaxLib.WebServer;
 using MaxLib.WebServer.WebSocket;
-using SteamGameFinder.Web.Events.Receive;
 
 namespace SteamGameFinder.Web;
 
@@ -9,13 +10,16 @@ public class WebSocketEndpoint : WebSocketEndpoint<WebSocketConnection>
 {
     public override string? Protocol => null;
 
-    private readonly EventFactory factory = new EventFactory();
+    private readonly EventFactory factory = new EventFactory(new JsonSerializerOptions
+    {
+        Converters = { new JsonStringEnumConverter(allowIntegerValues: false) },
+        RespectNullableAnnotations = true,
+    });
 
     public WebSocketEndpoint()
     {
         // fill the factory with the known event types
-        // factory.Add<InfoRequest>();
-        var required = typeof(Events.ReceiveBase);
+        var required = typeof(EventBase);
         var count = 0;
         foreach (var type in GetType().Assembly.GetTypes())
         {

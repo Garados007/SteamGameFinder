@@ -75,12 +75,24 @@ public class Session : IDisposable
 
     public async Task ForeachAsync(Func<Web.WebSocketConnection, Task> handler)
     {
+        async Task Guarded(Web.WebSocketConnection connection)
+        {
+            try
+            {
+                await handler(connection).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                Serilog.Log.Debug(e, "cannot send to connection");
+            }
+        }
+
         Task[] tasks;
         lock (this)
         {
             tasks = new Task[connections.Count];
             for (int i = 0; i < connections.Count; ++i)
-                tasks[i] = handler(connections[i]);
+                tasks[i] = Guarded(connections[i]);
         }
         await Task.WhenAll(tasks);
     }

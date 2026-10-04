@@ -1,12 +1,16 @@
-using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SteamGameFinder.Web.Events.Receive;
 
 public class SetBroke : ReceiveBase
 {
-    public string User { get; private set; } = "";
+    [JsonPropertyName("user")]
+    [JsonRequired]
+    public string User { get; set; } = "";
 
-    public bool Broke { get; private set; }
+    [JsonPropertyName("broke")]
+    [JsonRequired]
+    public bool Broke { get; set; }
 
     public override async Task Execute(ExecuteArgs args)
     {
@@ -22,12 +26,7 @@ public class SetBroke : ReceiveBase
                 args.Session.Broke.Remove(User);
             }
         }
-        await args.Session.ForeachAsync(x => x.Send(new Send.UpdateBroke(this)));
-    }
-
-    public override void ReadJsonContent(JsonElement json)
-    {
-        User = json.GetProperty("user").GetString() ?? "";
-        Broke = json.GetProperty("broke").GetBoolean();
+        var update = Send.UpdateBroke.From(this);
+        await args.Session.ForeachAsync(x => x.Send(update));
     }
 }

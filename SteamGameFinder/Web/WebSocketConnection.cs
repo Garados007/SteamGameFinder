@@ -29,25 +29,40 @@ public class WebSocketConnection : EventConnection
             if (Session.ConnectionCount == 0)
                 Session.Dispose();
         };
-        _ = Send(new Events.Send.SendInfo(session));
+        _ = Send(Events.Send.SendInfo.From(session));
     }
 
-    protected override Task ReceiveClose(CloseReason? reason, string? info)
+    protected override async Task ReceiveClose(CloseReason? reason, string? info)
     {
-        return Task.CompletedTask;
+        try
+        {
+            if (!SendCloseSignal)
+                await Close().ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            Serilog.Log.Debug(e, "cannot reply to close");
+        }
     }
 
     protected override Task ReceivedFrame(EventBase @event)
     {
         _ = Task.Run(async () => 
         {
-            switch (@event)
+            try
             {
-                case Events.ReceiveBase receive:
-                    await receive.Execute(new Events.ExecuteArgs(
-                        this
-                    ));
-                    break;
+                switch (@event)
+                {
+                    case Events.ReceiveBase receive:
+                        await receive.Execute(new Events.ExecuteArgs(
+                            this
+                        ));
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Serilog.Log.Error(e, "cannot execute event {event}", @event.GetType().Name);
             }
         });
         return Task.CompletedTask;

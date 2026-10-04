@@ -1,19 +1,17 @@
-using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SteamGameFinder.Web.Events.Send;
 
 public class UpdateBroke : SendBase
 {
-    public Receive.SetBroke Message { get; }
+    [JsonPropertyName("user")]
+    public string User { get; set; } = "";
 
-    public UpdateBroke(Receive.SetBroke message)
-    {
-        Message = message;
-    }
+    [JsonPropertyName("broke")]
+    public bool Broke { get; set; }
 
-    protected override void WriteJsonContent(Utf8JsonWriter writer)
+    public static UpdateBroke From(Receive.SetBroke message)
     {
-        writer.WriteString("user", Message.User);
-        writer.WriteBoolean("broke", Message.Broke);
+        return new UpdateBroke { User = message.User, Broke = message.Broke };
     }
 }

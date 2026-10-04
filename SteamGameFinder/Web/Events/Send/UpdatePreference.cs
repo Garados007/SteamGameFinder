@@ -1,20 +1,25 @@
-using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SteamGameFinder.Web.Events.Send;
 
 public class UpdatePreference : SendBase
 {
-    public Receive.SetPreference Message { get; }
+    [JsonPropertyName("user")]
+    public string User { get; set; } = "";
 
-    public UpdatePreference(Receive.SetPreference message)
-    {
-        Message = message;
-    }
+    [JsonPropertyName("game")]
+    public ulong Game { get; set; }
 
-    protected override void WriteJsonContent(Utf8JsonWriter writer)
+    [JsonPropertyName("preference")]
+    public Sessions.Preference Preference { get; set; }
+
+    public static UpdatePreference From(Receive.SetPreference message)
     {
-        writer.WriteString("user", Message.User);
-        writer.WriteNumber("game", Message.Game);
-        writer.WriteString("preference", Message.Preference.ToString());
+        return new UpdatePreference
+        {
+            User = message.User,
+            Game = message.Game,
+            Preference = message.Preference,
+        };
     }
 }
