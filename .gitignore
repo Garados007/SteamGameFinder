@@ -4,3 +4,4 @@ obj
 cache
 ui/index.js
 elm-stuff
+mime-cache.json
