@@ -25,7 +25,7 @@ RUN uglifyjs \
         --output index.js && \
     rm source.js
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 as builder
+FROM mcr.microsoft.com/dotnet/sdk:10.0 as builder
 WORKDIR /src
 COPY SteamGameFinder/ .
 RUN dotnet build --nologo -c RELEASE \
@@ -33,7 +33,7 @@ RUN dotnet build --nologo -c RELEASE \
     dotnet publish --nologo -c RELEASE -o /app \
         SteamGameFinder.csproj
 
-FROM mcr.microsoft.com/dotnet/runtime:6.0
+FROM mcr.microsoft.com/dotnet/runtime:10.0
 WORKDIR /app
 COPY --from=builder /app /app
 COPY ui/css /app/ui/css

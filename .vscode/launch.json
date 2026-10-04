@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/SteamGameFinder/bin/Debug/net6.0/SteamGameFinder.dll",
+            "program": "${workspaceFolder}/SteamGameFinder/bin/Debug/net10.0/SteamGameFinder.dll",
             "args": [],
             "cwd": "${workspaceFolder}/SteamGameFinder",
             "console": "internalConsole",
