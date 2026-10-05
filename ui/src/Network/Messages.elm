@@ -48,7 +48,7 @@ decodeReceiveMessage =
                 "SendInfo" -> 
                     JD.map SendInfo Data.Session.decodeSession
                 "UpdatedUser" ->
-                    JD.field "steamIds" (JD.list JD.string)
+                    JD.field "steamids" (JD.list JD.string)
                     |> JD.map UpdatedUser
                 "UpdatePreference" ->
                     JD.map3 UpdatePreference

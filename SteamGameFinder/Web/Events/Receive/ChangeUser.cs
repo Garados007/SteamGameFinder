@@ -1,25 +1,23 @@
-using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SteamGameFinder.Web.Events.Receive;
 
 public class ChangeUser : ReceiveBase
 {
-    public List<string> SteamIds { get; }
-        = new List<string>();
+    [JsonPropertyName("steamids")]
+    [JsonRequired]
+    public List<string> SteamIds { get; set; } = new();
 
     public override async Task Execute(ExecuteArgs args)
     {
+        if (SteamIds.Contains(null!))
+            return;
         lock (args.Session)
         {
             args.Session.SteamIds.Clear();
             args.Session.SteamIds.AddRange(SteamIds);
         }
-        await args.Session.ForeachAsync(x => x.Send(new Send.UpdatedUser(args.Session)));
-    }
-
-    public override void ReadJsonContent(JsonElement json)
-    {
-        foreach (var p in json.GetProperty("steamids").EnumerateArray())
-            SteamIds.Add(p.GetString() ?? throw new NullReferenceException());
+        var update = Send.UpdatedUser.From(args.Session);
+        await args.Session.ForeachAsync(x => x.Send(update));
     }
 }
